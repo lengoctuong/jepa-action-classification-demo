@@ -4,6 +4,8 @@ Official PyTorch codebase for the *video joint-embedding predictive architecture
 
 *Note: This fork adds an interactive Web Demo application (Gradio) and detailed Benchmark scripts on the Something-Something V2 (SSv2) dataset based on pre-trained weights (Pretrained & Attentive Probe).*
 
+[DEMO APP](https://youtu.be/zDPnRINArUc)
+
 ## 1. Setup & Installation
 
 System requirements: Linux/Windows operating system, Python 3.9+, and a CUDA-supported GPU.
@@ -118,9 +120,9 @@ python calculate_metrics.py
 
 V-JEPA pretraining is based solely on an unsupervised feature prediction objective, and does not utilize pretrained image encoders, text, negative examples, human annotations, or pixel-level reconstruction.
 
-\<img src="[https://github.com/facebookresearch/jepa/assets/7530871/72df7ef0-2ef5-48bb-be46-27963db91f3d](https://github.com/facebookresearch/jepa/assets/7530871/72df7ef0-2ef5-48bb-be46-27963db91f3d)" width=40%\>
-\&emsp;\&emsp;\&emsp;\&emsp;\&emsp;
-\<img src="[https://github.com/facebookresearch/jepa/assets/7530871/f26b2e96-0227-44e2-b058-37e7bf1e10db](https://github.com/facebookresearch/jepa/assets/7530871/f26b2e96-0227-44e2-b058-37e7bf1e10db)" width=40%\>
+<img src="https://github.com/facebookresearch/jepa/assets/7530871/72df7ef0-2ef5-48bb-be46-27963db91f3d" width=40%>
+&emsp;&emsp;&emsp;&emsp;&emsp;
+<img src="https://github.com/facebookresearch/jepa/assets/7530871/f26b2e96-0227-44e2-b058-37e7bf1e10db" width=40%>
 
 ## Visualizations
 
@@ -128,7 +130,13 @@ As opposed to generative methods that have a pixel decoder, V-JEPA has a predict
 We train a conditional diffusion model to decode the V-JEPA feature-space predictions to interpretable pixels; the pretrained V-JEPA encoder and predictor networks are kept frozen in this process.
 The decoder is only fed the representations predicted for the missing regions of the video, and does not have access to the unmasked regions of the video.
 
-\<img src="[https://github.com/facebookresearch/jepa/assets/7530871/8bb5e338-0db8-4532-ba6f-fc62729acc26](https://github.com/facebookresearch/jepa/assets/7530871/8bb5e338-0db8-4532-ba6f-fc62729acc26)" width=90%\>
+<img src="https://github.com/facebookresearch/jepa/assets/7530871/8bb5e338-0db8-4532-ba6f-fc62729acc26" width=90%>
+<br/>
+<img src="https://github.com/facebookresearch/jepa/assets/7530871/93e15a3b-9119-4149-ac88-4e6288f2043d" width=22%>
+<img src="https://github.com/facebookresearch/jepa/assets/7530871/7efd2ee2-2aa0-4065-a4a6-12f1d9d0499c" width=22%>
+<img src="https://github.com/facebookresearch/jepa/assets/7530871/06626018-cd5a-4536-9d0e-de58506ce5ed" width=22%>
+<img src="https://github.com/facebookresearch/jepa/assets/7530871/766da53a-e6b8-4f94-82c8-9a53b4764358" width=22%>
+<br/>
 
 ## MODEL ZOO
 
