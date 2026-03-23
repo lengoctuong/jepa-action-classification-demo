@@ -2,13 +2,13 @@
 
 Official PyTorch codebase for the *video joint-embedding predictive architecture*, V-JEPA, a method for self-supervised learning of visual representations from video.
 
-*Lưu ý: Fork này bổ sung thêm ứng dụng Web Demo trực quan (Gradio) và các kịch bản chạy Benchmark chi tiết trên tập dữ liệu Something-Something V2 (SSv2) dựa trên các trọng số đã được huấn luyện trước (Pretrained & Attentive Probe).*
+*Note: This fork adds an interactive Web Demo application (Gradio) and detailed Benchmark scripts on the Something-Something V2 (SSv2) dataset based on pre-trained weights (Pretrained & Attentive Probe).*
 
-## 1\. Môi trường và Cài đặt (Setup & Installation)
+## 1. Setup & Installation
 
-Yêu cầu hệ thống: Hệ điều hành Linux/Windows, Python 3.9+ và GPU hỗ trợ CUDA.
+System requirements: Linux/Windows operating system, Python 3.9+, and a CUDA-supported GPU.
 
-### Khởi tạo môi trường Conda
+### Initialize Conda environment
 
 ```bash
 conda create -n jepa python=3.9 pip
@@ -16,105 +16,103 @@ conda activate jepa
 python setup.py install
 ```
 
-### Cài đặt các thư viện bổ sung cho Fork
+### Install additional libraries for the Fork
 
-Các thư viện cần thiết để chạy Web App (Gradio), xử lý video (OpenCV, MoviePy) và tính toán Metrics (Scikit-learn, Pandas):
+Required libraries for running the Web App (Gradio), video processing (OpenCV, MoviePy), and calculating Metrics (Scikit-learn, Pandas):
 
 ```bash
 pip install gradio opencv-python scikit-learn pandas seaborn matplotlib tqdm moviepy
 ```
 
-## 2\. Chuẩn bị Dữ liệu và Trọng số (Data & Weights Preparation)
+## 2. Data & Weights Preparation
 
-### Tải trọng số Mô hình (Model Weights)
+### Download Model Weights
 
-Fork này mặc định cấu hình sử dụng kiến trúc **ViT-H/16** (độ phân giải 384x384) để đạt độ chính xác tối ưu nhất trên tập SSv2. Bạn cần tải cả Encoder (đóng băng) và lớp Classifier (Attentive Probe).
+This fork is configured by default to use the **ViT-H/16** architecture (384x384 resolution) to achieve optimal accuracy on the SSv2 dataset. You need to download both the Encoder (frozen) and the Classifier layer (Attentive Probe).
 
 ```bash
-# Tải V-JEPA ViT-H/16 (384x384) Backbone
+# Download V-JEPA ViT-H/16 (384x384) Backbone
 wget https://dl.fbaipublicfiles.com/jepa/vith16-384/vith16-384.pth.tar
 
-# Tải SSv2 Attentive Probe Classifier
+# Download SSv2 Attentive Probe Classifier
 wget https://dl.fbaipublicfiles.com/jepa/vith16-384/ssv2-probe.pth.tar
 ```
 
-### Tải tập dữ liệu SSv2 Test từ Kaggle
+### Download SSv2 Test dataset from Kaggle
 
-Tập dữ liệu dùng để benchmark là tập Test của Something-Something V2.
+The dataset used for benchmarking is the Test set of Something-Something V2.
 
-1.  Đảm bảo bạn đã cấu hình Kaggle API (`~/.kaggle/kaggle.json`).
-2.  Tải và giải nén dữ liệu video (Thay `<kaggle-dataset-id>` bằng ID thực tế của bộ dataset SSv2 trên Kaggle mà bạn sử dụng):
-
-<!-- end list -->
+1.  Ensure you have configured the Kaggle API (`~/.kaggle/kaggle.json`).
+2.  Download and extract the video data (Replace `<kaggle-dataset-id>` with the actual ID of the SSv2 dataset on Kaggle that you are using):
 
 ```bash
 kaggle datasets download -d <kaggle-dataset-id>
 unzip <kaggle-dataset-id>.zip -d ssv2_test_data/
 ```
 
-3.  Đảm bảo cấu trúc thư mục chứa Ground Truth Labels: `20bn-something-something-download-package-labels/labels/test-answers.csv` đã có sẵn trong repository (có thể download từ mục [Labels](https://www.qualcomm.com/developer/software/something-something-v-2-dataset/downloads) của Qualcomm).
+3.  Ensure the directory structure containing Ground Truth Labels: `20bn-something-something-download-package-labels/labels/test-answers.csv` is available in the repository (can be downloaded from the [Labels](https://www.qualcomm.com/developer/software/something-something-v-2-dataset/downloads) section of Qualcomm).
 
-## 3\. Chạy Ứng dụng và Thực nghiệm (Running Scripts)
+## 3. Running Scripts
 
-### Chạy Ứng dụng Web Demo (Gradio)
+### Run Web Demo App (Gradio)
 
-Ứng dụng sử dụng luồng xử lý giao thức **Multi-view (16x2x3)** chuẩn xác của Meta FAIR, cho phép upload video hoặc dùng webcam để nhận diện hành động theo thời gian thực.
+The application uses the exact **Multi-view (16x2x3)** protocol pipeline from Meta FAIR, allowing video uploads or webcam usage for real-time action recognition.
 
 ```bash
 python app.py
 ```
 
-Giao diện sẽ được host tại `http://127.0.0.1:7860/` (hỗ trợ Public Share Link).
+The interface will be hosted at `http://127.0.0.1:7860/` (supports Public Share Link).
 
-### Đánh giá Mô hình (Inference & Benchmarking)
+### Inference & Benchmarking
 
-**Thực thi Single-view Inference (Tối ưu tốc độ):**
-Sử dụng Center Crop và 1 đoạn clip trung tâm duy nhất.
+**Execute Single-view Inference (Optimized for speed):**
+Uses Center Crop and a single central clip.
 
 ```bash
 python eval_ssv2_single_view.py
 ```
 
-*Đầu ra:* `vjepa_preds_single_view.csv`
+*Output:* `vjepa_preds_single_view.csv`
 
-**Thực thi Multi-view Inference (Tối ưu độ chính xác):**
-Sử dụng giao thức 16x2x3 (6 tensors/video). Lưu ý: Yêu cầu VRAM GPU cao (Khuyến nghị 40GB+ cho Batch Size 16).
+**Execute Multi-view Inference (Optimized for accuracy):**
+Uses the 16x2x3 protocol (6 tensors/video). Note: Requires high GPU VRAM (Recommended 40GB+ for Batch Size 16).
 
 ```bash
 python eval_ssv2_multiview.py
 ```
 
-*Đầu ra:* `vjepa_preds_multiview.csv`
+*Output:* `vjepa_preds_multiview.csv`
 
-### Tính toán Metrics (Precision, Recall, F1-Score)
+### Calculate Metrics (Precision, Recall, F1-Score)
 
-Sau khi có file dự đoán (CSV), tiến hành đối chiếu với file Ground Truth để xuất báo cáo chi tiết cho từng lớp hành động (Macro/Micro Average).
+After generating the prediction file (CSV), compare it with the Ground Truth file to output a detailed report for each action class (Macro/Micro Average).
 
 ```bash
 python calculate_metrics.py
 ```
 
-*(Ghi chú: Hãy trỏ đúng đường dẫn biến `PRED_CSV` bên trong file `calculate_metrics.py` tương ứng với kết quả bạn vừa infer).*
+*(Note: Please point to the correct `PRED_CSV` variable path inside the `calculate_metrics.py` file corresponding to the results you just inferred).*
 
-## 4\. Cấu trúc Source Code (Mở rộng)
+## 4. Source Code Structure (Extended)
 
 ```text
 .
-├── app.py                      # [MỚI] Web App Demo nhận diện hành động bằng Gradio (Official Pipeline)
-├── eval_ssv2_single_view.py    # [MỚI] Inference script (Single-view protocol)
-├── eval_ssv2_multiview.py      # [MỚI] Inference script (Multi-view 16x2x3 protocol)
-├── calculate_metrics.py        # [MỚI] Script tính toán Precision, Recall, F1-Score & Accuracy
-├── ssv2_classes.json           # [MỚI] Danh sách 174 nhãn SSv2
-├── 20bn-something...labels/    # [MỚI] Thư mục chứa Ground Truth CSV
-├── app/                        # [GỐC] Training loops
-├── evals/                      # [GỐC] Evaluation modules
-├── src/                        # [GỐC] Model architectures (ViT, JEPA, etc.)
-└── configs/                    # [GỐC] YAML configs
+├── app.py                      # [NEW] Web App Demo for action recognition using Gradio (Official Pipeline)
+├── eval_ssv2_single_view.py    # [NEW] Inference script (Single-view protocol)
+├── eval_ssv2_multiview.py      # [NEW] Inference script (Multi-view 16x2x3 protocol)
+├── calculate_metrics.py        # [NEW] Script for calculating Precision, Recall, F1-Score & Accuracy
+├── ssv2_classes.json           # [NEW] List of 174 SSv2 labels
+├── 20bn-something...labels/    # [NEW] Directory containing Ground Truth CSV
+├── app/                        # [ORIGINAL] Training loops
+├── evals/                      # [ORIGINAL] Evaluation modules
+├── src/                        # [ORIGINAL] Model architectures (ViT, JEPA, etc.)
+└── configs/                    # [ORIGINAL] YAML configs
 ```
 
 -----
 
-*(Phần dưới đây giữ nguyên tài liệu gốc từ Meta FAIR)*
+*(The section below retains the original documentation from Meta FAIR)*
 
 ## Method
 
